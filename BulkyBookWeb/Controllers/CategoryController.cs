@@ -1,6 +1,8 @@
 ﻿using BulkyBookWeb.Data;
 using BulkyBookWeb.Models;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
+using System.Security.Cryptography;
 
 namespace BulkyBookWeb.Controllers
 {
@@ -29,20 +31,20 @@ namespace BulkyBookWeb.Controllers
         // POST Method
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Category Obj)
+        public IActionResult Create(Category obj)
         {
-            if(Obj.DisplayOrder!= null && Obj.Name == Obj.DisplayOrder.ToString())
+            if(obj.DisplayOrder!= null && obj.Name == obj.DisplayOrder.ToString())
             {
                 ModelState.AddModelError("Name" , "The Display Order Cant Be as Same as The Name");
             }
             if (ModelState.IsValid)
             {
-                Console.WriteLine(Obj);
-                _db.Categories.Add(Obj);
+                Console.WriteLine(obj);
+                _db.Categories.Add(obj);
                 _db.SaveChanges();
                 return RedirectToAction("Index", "Category");
             }
-            return View(Obj);
+            return View(obj);
         }
 
 
@@ -52,10 +54,10 @@ namespace BulkyBookWeb.Controllers
         // GET
         public IActionResult Edit(int? id)
         {
-            if(id ==null || id == 0) return NotFound();
+            if (id == null || id == 0) return NotFound();
             // var categoryFormDb = _db.Categories.FirstOrDefault(el => el.Id == id);
             var categoryFormDb = _db.Categories.Find(id);
-            if(categoryFormDb!=null)
+            if (categoryFormDb != null)
             {
 
                 return View(categoryFormDb);
@@ -68,20 +70,60 @@ namespace BulkyBookWeb.Controllers
         // POST Method
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Category Obj)
+        public IActionResult Edit(Category obj)
         {
-            if (Obj.DisplayOrder != null && Obj.Name == Obj.DisplayOrder.ToString())
+            if (obj.DisplayOrder != null && obj.Name == obj.DisplayOrder.ToString())
             {
                 ModelState.AddModelError("Name", "The Display Order Cant Be as Same as The Name");
             }
             if (ModelState.IsValid)
             {
-                Console.WriteLine(Obj);
-                _db.Categories.Add(Obj);
+                var x = obj;
+                _db.Categories.Update(obj);
                 _db.SaveChanges();
                 return RedirectToAction("Index", "Category");
             }
-            return View(Obj);
+            return View(obj);
         }
+
+
+
+
+
+    // GET
+    public IActionResult Delete(int? id)
+    {
+        if (id == null || id == 0) return NotFound();
+        // var categoryFormDb = _db.Categories.FirstOrDefault(el => el.Id == id);
+        var categoryFormDb = _db.Categories.Find(id);
+        if (categoryFormDb != null)
+        {
+
+            return View(categoryFormDb);
+
+        }
+        return NotFound();
     }
+
+
+    // POST Method
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult DeleteCategory(Category obj)
+        {
+  
+        var cat = _db.Categories.Find(obj.Id);
+        if (cat == null) {
+
+            return NotFound();
+        }
+        _db.Categories.Remove(cat);
+        _db.SaveChanges();
+        return RedirectToAction("Index");
+    }
+}
+
+
+
+
 }
